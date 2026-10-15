@@ -1,0 +1,72 @@
+{extends file="get_usermod:layouts/main/layout.html"}
+
+{block name="content"}
+    {load_language_text section="everysizecheckout"}
+
+    <div class="grid grid-12">
+        <div class="grid grid-12">
+            <h1 class="page-head">{$txt.everysizecheckout_protocol_title|ucfirst}</h1>
+        </div>
+
+        <div class="grid grid-12">
+            <div class="btn-group" role="group" aria-label="{$txt.everysizecheckout_protocol_state}">
+                <a class="btn btn-default{if $content.state === 'all'} active{/if}" href="{$content.urlAll}">{$txt.everysizecheckout_protocol_filter_all}</a>
+                <a class="btn btn-default{if $content.state === 'ok'} active{/if}" href="{$content.urlOk}">{$txt.everysizecheckout_protocol_filter_ok}</a>
+                <a class="btn btn-default{if $content.state === 'error'} active{/if}" href="{$content.urlError}">{$txt.everysizecheckout_protocol_filter_error}</a>
+            </div>
+        </div>
+
+        <div class="grid grid-12">
+            {if $content.entries|count === 0}
+                <p>{$txt.everysizecheckout_protocol_empty}</p>
+            {else}
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width:10%">{$txt.everysizecheckout_protocol_time}</th>
+                            <th style="width:20%">{$txt.everysizecheckout_protocol_title_col}</th>
+                            <th>{$txt.everysizecheckout_protocol_message}</th>
+                            <th style="width:12%">{$txt.everysizecheckout_protocol_state}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $content.entries as $entry}
+                            <tr>
+                                <td>{$entry.TIME}</td>
+                                <td>{$entry.TITLE}</td>
+                                <td style="word-break:break-word">{$entry.MESSAGE|nl2br}</td>
+                                <td>
+                                    {if $entry.STATE === 'ok'}
+                                        <span class="label label-success">{$entry.STATE}</span>
+                                    {elseif $entry.STATE === 'error'}
+                                        <span class="label label-danger">{$entry.STATE}</span>
+                                    {else}
+                                        <span class="label label-default">{$entry.STATE}</span>
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            {/if}
+        </div>
+
+        {if $content.pages > 1}
+            <div class="grid grid-12">
+                <nav>
+                    <ul class="pagination">
+                        <li{if $content.hasPrev === ''} class="disabled"{/if}>
+                            <a href="{$content.urlPrev}" aria-label="prev">&laquo;</a>
+                        </li>
+                        <li class="disabled">
+                            <span>{$content.pagerText}</span>
+                        </li>
+                        <li{if $content.hasNext === ''} class="disabled"{/if}>
+                            <a href="{$content.urlNext}" aria-label="next">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        {/if}
+    </div>
+{/block}

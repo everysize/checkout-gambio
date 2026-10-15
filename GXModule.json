@@ -1,0 +1,11 @@
+{
+    "version": "1.0.1",
+    "title": {
+        "de-DE": "everysize Checkout",
+        "en-US": "everysize Checkout"
+    },
+    "description": {
+        "de-DE": "Bindet den Shop an den everysize-Direktkauf an: Bestellungen aus everysize werden importiert; Bestellnummer, Versand, Sendungsnummern, Storno, Retoure und Erstattungen werden zurückgemeldet.",
+        "en-US": "Connects the shop to the everysize direct purchase: orders from everysize are imported; order number, shipping, tracking codes, cancellation, return and refunds are reported back."
+    }
+}

@@ -1,0 +1,202 @@
+{extends file="get_usermod:layouts/main/layout.html"}
+
+{block name="content"}
+    {load_language_text section="everysizecheckout"}
+
+    <div class="grid grid-12">
+        <form action="{$content.action_save}" method="POST" class="form-configuration" id="everysize_settings_form">
+            <input type="hidden" name="pageToken" value="{$content.pageToken}">
+
+            <div class="grid grid-12">
+                <h1 class="page-head">{$txt.everysizecheckout_title}</h1>
+            </div>
+
+            {if $content.environment.environment == 'invalid'}
+                <div class="alert alert-danger">{$txt.everysizecheckout_env_invalid} {$content.environment.error}</div>
+            {elseif $content.environment.environment == 'production'}
+                <div class="alert alert-info">{$txt.everysizecheckout_env_production} {$content.api_url}</div>
+            {else}
+                <div class="alert alert-warning">{$txt.everysizecheckout_env_test} {$content.api_url}</div>
+            {/if}
+
+            <fieldset>
+                <legend>{$txt.everysizecheckout_credentials}</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_client_id">{$txt.everysizecheckout_client_id}</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="client_id" id="everysize_client_id"
+                               value="{$content.configuration.clientId|default:''}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_client_secret">{$txt.everysizecheckout_client_secret}</label>
+                    <div class="col-sm-5">
+                        <input type="password" class="form-control" name="client_secret" id="everysize_client_secret"
+                               value="" autocomplete="new-password">
+                    </div>
+                    <div class="col-sm-3">
+                        {if $content.has_credentials}<span class="help-block">{$txt.everysizecheckout_secret_stored}</span>{/if}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <button type="button" class="btn btn-default" id="everysize_test_connection">{$txt.everysizecheckout_test_connection}</button>
+                        <button type="button" class="btn btn-default" id="everysize_remove_credentials"
+                                onclick="return confirm('{$txt.everysizecheckout_remove_confirm}')">{$txt.everysizecheckout_remove_credentials}</button>
+                        <span id="everysize_test_result"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>{$txt.everysizecheckout_import}</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_import_status">{$txt.everysizecheckout_import_status}</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" name="import_status" id="everysize_import_status">
+                            {foreach $content.order_statuses as $status}
+                                <option value="{$status.id}" {if $content.configuration.importStatus|default:'' == $status.id}selected{/if}>{$status.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_send_confirmation">{$txt.everysizecheckout_send_confirmation}</label>
+                    <div class="col-sm-8" data-gx-widget="switcher">
+                        <input type="hidden" name="send_order_confirmation" value="0">
+                        <input type="checkbox" name="send_order_confirmation" value="1" class="form-control"
+                               {if $content.configuration.sendOrderConfirmation|default:'0' == '1'}checked="checked"{/if}>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>{$txt.everysizecheckout_export}</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_shipping_statuses">{$txt.everysizecheckout_shipping_statuses}</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" name="shipping_statuses[]" id="everysize_shipping_statuses" multiple size="6">
+                            {foreach $content.order_statuses as $status}
+                                <option value="{$status.id}" {if $status.id|in_array:$content.shipping_statuses}selected{/if}>{$status.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_cancellation_statuses">{$txt.everysizecheckout_cancellation_statuses}</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" name="cancellation_statuses[]" id="everysize_cancellation_statuses" multiple size="6">
+                            {foreach $content.order_statuses as $status}
+                                <option value="{$status.id}" {if $status.id|in_array:$content.cancellation_statuses}selected{/if}>{$status.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_return_statuses">{$txt.everysizecheckout_return_statuses}</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" name="return_statuses[]" id="everysize_return_statuses" multiple size="6">
+                            {foreach $content.order_statuses as $status}
+                                <option value="{$status.id}" {if $status.id|in_array:$content.return_statuses}selected{/if}>{$status.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="col-sm-8 col-sm-offset-4"><span class="help-block">{$txt.everysizecheckout_return_statuses_hint}</span></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_carrier">{$txt.everysizecheckout_carrier}</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" name="carrier" id="everysize_carrier" maxlength="31"
+                               list="everysize_carriers" value="{$content.configuration.carrier|default:''}">
+                        <datalist id="everysize_carriers">
+                            {foreach $content.carriers as $carrier}<option value="{$carrier}"></option>{/foreach}
+                        </datalist>
+                    </div>
+                    <div class="col-sm-3"><span class="help-block">{$txt.everysizecheckout_carrier_hint}</span></div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>{$txt.everysizecheckout_refund}</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_auto_refund">{$txt.everysizecheckout_auto_refund}</label>
+                    <div class="col-sm-8" data-gx-widget="switcher">
+                        <input type="hidden" name="auto_refund" value="0">
+                        <input type="checkbox" name="auto_refund" value="1" class="form-control"
+                               {if $content.configuration.autoRefund|default:'1' == '1'}checked="checked"{/if}>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4"><span class="help-block">{$txt.everysizecheckout_auto_refund_hint}</span></div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>{$txt.everysizecheckout_sync}</legend>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="everysize_sync_enabled">{$txt.everysizecheckout_sync_enabled}</label>
+                    <div class="col-sm-8" data-gx-widget="switcher">
+                        <input type="hidden" name="sync_enabled" value="0">
+                        <input type="checkbox" name="sync_enabled" value="1" class="form-control"
+                               {if $content.configuration.syncEnabled|default:'1' == '1'}checked="checked"{/if}>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4"><span class="help-block">{$txt.everysizecheckout_sync_hint}</span></div>
+                </div>
+            </fieldset>
+
+            <div class="form-group">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <button type="submit" class="btn btn-primary">{$txt.everysizecheckout_save}</button>
+                </div>
+            </div>
+        </form>
+
+        <form id="everysize_remove_credentials_form" action="{$content.action_remove}" method="POST" style="display:none">
+            <input type="hidden" name="pageToken" value="{$content.pageToken}">
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        // Werte aus Smarty hier in JS-Konstanten übergeben; das eigentliche
+        // Skript steht im Literal-Block darunter, damit Smarty die
+        // JS-Klammern (Objektliterale) nicht als Tags liest. Keine
+        // Smarty-Tags in diesem Kommentar verwenden.
+        var everysizeSettings = {
+            actionTest: {$content.action_test|json_encode},
+            testing: {$txt.everysizecheckout_testing|json_encode},
+            testOk: {$txt.everysizecheckout_test_ok|json_encode},
+            testFailed: {$txt.everysizecheckout_test_failed|json_encode}
+        };
+        var everysizeRemoveConfirm = {$txt.everysizecheckout_remove_confirm|json_encode};
+    </script>
+    <script type="text/javascript">
+        {literal}
+        document.getElementById('everysize_test_connection').addEventListener('click', function () {
+            var result = document.getElementById('everysize_test_result');
+            result.textContent = everysizeSettings.testing;
+            var body = new URLSearchParams();
+            var clientId = document.getElementById('everysize_client_id').value;
+            var secret = document.getElementById('everysize_client_secret').value;
+            if (clientId) { body.append('client_id', clientId); }
+            if (secret) { body.append('client_secret', secret); }
+            fetch(everysizeSettings.actionTest, {method: 'POST', body: body})
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        result.textContent = everysizeSettings.testOk + ' ' + data.shop_id + ' (' + data.api_url + ')';
+                    } else {
+                        result.textContent = everysizeSettings.testFailed + ' ' + (data.error || '');
+                    }
+                })
+                .catch(function (e) { result.textContent = everysizeSettings.testFailed + ' ' + e; });
+        });
+        document.getElementById('everysize_remove_credentials').addEventListener('click', function () {
+            if (confirm(everysizeRemoveConfirm)) {
+                document.getElementById('everysize_remove_credentials_form').submit();
+            }
+        });
+        {/literal}
+    </script>
+{/block}

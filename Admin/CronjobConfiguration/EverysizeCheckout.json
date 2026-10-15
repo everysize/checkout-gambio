@@ -1,0 +1,42 @@
+{
+    "name": "EverysizeCheckout",
+    "title": "cronjob_everysizecheckout.cronjob_title",
+    "configuration": {
+        "active": {
+            "name": "active",
+            "type": "checkbox",
+            "label": "cronjob_everysizecheckout.cronjob_label_activate",
+            "defaultValue": false
+        },
+        "interval": {
+            "name": "interval",
+            "type": "select",
+            "label": "cronjob_everysizecheckout.cronjob_label_configure_interval",
+            "defaultValue": "*/5 * * * *",
+            "values": [
+                {
+                    "value": "*/5 * * * *",
+                    "text": "cronjob_everysizecheckout.every_5_minutes"
+                },
+                {
+                    "value": "*/15 * * * *",
+                    "text": "cronjob_everysizecheckout.every_15_minutes"
+                },
+                {
+                    "value": "0 * * * *",
+                    "text": "cronjob_everysizecheckout.every_hour"
+                },
+                {
+                    "value": "0 */6 * * *",
+                    "text": "cronjob_everysizecheckout.every_6_hours"
+                }
+            ]
+        },
+        "sortOrder": {
+            "name": "sort-order",
+            "type": "hidden",
+            "label": "",
+            "defaultValue": "90"
+        }
+    }
+}
